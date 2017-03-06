@@ -1,0 +1,59 @@
+server:
+  port: ${appPort:8012}
+
+eureka:
+  #dashboard:
+    #enabled: false
+    
+  client:
+    registerWithEureka: false
+    fetchRegistry: false
+    serviceUrl:
+      defaultZone: ${zoneUrls}
+      
+  instance:
+    hostname: ${appIPAddr:localhost}
+    preferIpAddress: true
+    metadataMap:
+      instanceId: ${spring.application.name}:${server.port}
+      
+  server:
+    enable-self-preservation: false
+    response-cache-auto-expiration-in-seconds: 30
+    renewal-percent-threshold: 0.49
+    
+  environment: ${Environment:default}
+  datacenter: ${Datacenter:local}
+  
+zoneUrls: http://${eureka.instance.hostname}:${server.port}/eureka/
+
+info:
+   app:
+      name: ${spring.application.name}
+   build:
+      version: 1.0
+   Hostname: ${eureka.instance.hostname}
+   Environment: ${eureka.environment}
+   Datacenter: ${eureka.datacenter}
+   DefaultZone: ${eureka.client.serviceUrl.defaultZone}
+
+---
+spring:
+  profiles: standalone
+  
+# java -Dspring.profiles.active=standalone -DEnvironment=dev -DDatacenter=NantCloud -DappIPAddr=192.168.199.2 -jar eureka-server-1.0.0.RELEASE.jar
+# Or
+# java -DEnvironment=dev -DDatacenter=NantCloud -DappIPAddr=192.168.199.2 -jar eureka-server-1.0.0.RELEASE.jar
+
+---
+spring:
+  profiles: peerAware
+# java -Dspring.profiles.active=peerAware -DEnvironment=dev -DDatacenter=NantCloud -DappIPAddr=192.168.199.2 -DzoneUrls=http://192.168.199.2:8012/eureka/,http://192.168.199.3:8012/eureka/ -jar eureka-server-0.0.1-SNAPSHOT.jar &
+# java -Dspring.profiles.active=peerAware -DEnvironment=dev -DDatacenter=NantCloud -DappIPAddr=192.168.199.3 -DzoneUrls=http://192.168.199.2:8012/eureka/,http://192.168.199.3:8012/eureka/ -jar eureka-server-0.0.1-SNAPSHOT.jar &
+
+eureka:
+  client:
+    registerWithEureka: true
+  server:
+    renewal-percent-threshold: 0.85
+    
